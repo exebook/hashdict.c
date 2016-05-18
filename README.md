@@ -2,6 +2,11 @@
 
 This is my REALLY FAST implementation of a hash table in C, in 150 lines of code.
 
+This is in fact a port of my [hashdic][cppversion] previously written in C++ for [jslike][jslike] project (which is a `var` class making programming in C++ as easy as in JavaScript).
+
+[cppversion]: https://github.com/exebook/hashdic
+[jslike]: https://github.com/exebook/jslike
+
 For some reason it is more than twice as fast on my benchmarks as the hash table used in Redis.
 
 The hash function used is my adaptation of MurMur.
