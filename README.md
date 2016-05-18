@@ -59,11 +59,11 @@ Creates the hash table.
 
 `struct dictionary* dic_new(int initial_size);`
 
-set `initial_size` to 0 for the default.
+set `initial_size` to 0 for the initial size of the table, which is 1024 items. Useful when you know how much keys you will store and want to preallocate, in which case use N/2 as the initial_size.
 
 ##dic_delete()
 
-Deletes the hash table and frees all occuped memory.
+Deletes the hash table and frees all occupied memory.
 
 `void dic_delete(struct dictionary* dic);`
 
@@ -75,11 +75,11 @@ Unlike most of implementations, you do NOT supply the value as the argument for 
 
 `int dic_add(struct dictionary* dic, void *key, int keyn);`
 
-Returns true(1) if the key was already in the table, otherwise false(0).
+Returns `true`(`1`) if the key was already in the table, otherwise `false`(`0`). In both cases you can change the associated value by referencing the `*dic->result` field.
 
 ##dic_find()
 
-Lookup the key in the hash table. Return true(1) if found, the you can get the value like this: `myvalue = *dic->result`. 
+Lookup the key in the hash table. Return `true`(`1`) if found, the you can get the value like this: `myvalue = *dic->result`. 
 
 `int dic_find(struct dictionary* dic, void *key, int keyn);`
 
