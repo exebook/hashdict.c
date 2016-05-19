@@ -20,7 +20,7 @@ struct dictionary {
 	int length, count;
 	double growth_treshold;
 	double growth_factor;
-	HASHDICT_VALUE_TYPE *result;
+	HASHDICT_VALUE_TYPE *value;
 };
 
 /* See README.md */

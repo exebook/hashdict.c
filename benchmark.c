@@ -22,7 +22,7 @@ int main() {
 		for (i = 0; i < STEPS; i++) {
 			key += STEP;
 			dic_add(dic, &key, KEY_SIZE);
-			*dic->result = (key+55) & 0xff;
+			*dic->value = (key+55) & 0xff;
 		}
 		t = time1000() - T;
 		if (t < best_ins) best_ins = t;
@@ -32,7 +32,7 @@ int main() {
 		for (i = 0; i < STEPS; i++) {
 			key += STEP;
 			if (dic_find(dic, &key, KEY_SIZE)) {
-				if (*dic->result != ((key+55) & 0xff)) err++;
+				if (*dic->value != ((key+55) & 0xff)) err++;
 			}
 			else err++;
 		}

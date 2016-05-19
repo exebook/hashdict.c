@@ -16,28 +16,6 @@ The hash function used is my adaptation of [Meiyan][cmp2]/7zCRC, it is [better t
 
 Hash slot duplicates are stored as linked list `node = node->next`.
 
-##tuning
-
-
-#### growth (resize)
-`struct dictionary` has tuning fields:
-
-`growth_threshold`: when to resize, for example `0.5` means "if number of inserted keys is half of the table length then resize". Default: `2.0`;
-	
-My experiments on english dictionary shows balanced performance/memory savings with 1.0 to 2.0.
-
-`growth_factor`: grow the size of hash table by N. Suggested number is between 2 (conserve memory) and 10 (faster insertions).
-
-The key is a combination of a pointer to bytes and a count of bytes.
-
-####value type
-
-The value type is defined as `int` in the header file, you can redefine it to the required type, which could be `char` or `void*` or anything you need.
-
-```c
-#define HASHDICT_VALUE_TYPE int
-```
-
 ##example
 
 ```c
@@ -49,30 +27,45 @@ int main() {
 	struct dictionary* dic = dic_new(0);
 	
 	dic_add(dic, "ABC", 3);
-	*dic->result = 100;
+	*dic->value = 100;
 	
 	dic_add(dic, "DE", 2);
-	*dic->result = 200;
+	*dic->value = 200;
 	
 	dic_add(dic, "HJKL", 4);
-	*dic->result = 300;
+	*dic->value = 300;
 	
 	if (dic_find(dic, "ABC", 3))
-		printf("ABC found: %i\n", *dic->result);
+		printf("ABC found: %i\n", *dic->value);
 	else printf("error\n");
 	
 	if (dic_find(dic, "DE", 2))
-		printf("DE found: %i\n", *dic->result);
+		printf("DE found: %i\n", *dic->value);
 	else printf("error\n");
 	
 	if (dic_find(dic, "HJKL", 4))
-		printf("HJKL found: %i\n", *dic->result);
+		printf("HJKL found: %i\n", *dic->value);
 	else printf("error\n");
 	
 	dic_delete(dic);
 	return 0;
 }
 ```
+##dic_add()
+
+Add a new key to the hash table.
+
+Unlike most of implementations, you do NOT supply the value as the argument for the `add()` function. Instead after `dic_add()` returns, set the value like this: `*mydic->value = <VALUE>`.
+
+`int dic_add(struct dictionary* dic, void *key, int keyn);`
+
+Returns `true`(`1`) if the key was already in the table, otherwise `false`(`0`). In both cases you can change the associated value by referencing the `*dic->value` field after `dic_add()` returns.
+
+##dic_find()
+
+Lookup the key in the hash table. Return `true`(`1`) if found, the you can get the value like this: `myvalue = *dic->value`. 
+
+`int dic_find(struct dictionary* dic, void *key, int keyn);`
 
 ##dic_new()
 
@@ -88,22 +81,6 @@ Delete the hash table and frees all occupied memory.
 
 `void dic_delete(struct dictionary* dic);`
 
-##dic_add()
-
-Add a new key to the hash table.
-
-Unlike most of implementations, you do NOT supply the value as the argument for the `add()` function. Instead after `dic_add()` returns, set the value like this: `*mydic->result = <VALUE>`.
-
-`int dic_add(struct dictionary* dic, void *key, int keyn);`
-
-Returns `true`(`1`) if the key was already in the table, otherwise `false`(`0`). In both cases you can change the associated value by referencing the `*dic->result` field.
-
-##dic_find()
-
-Lookup the key in the hash table. Return `true`(`1`) if found, the you can get the value like this: `myvalue = *dic->result`. 
-
-`int dic_find(struct dictionary* dic, void *key, int keyn);`
-
 ##forEach()
 
 Iterates over all keys in the table and calls the specified callback for each of them.
@@ -112,5 +89,27 @@ Iterates over all keys in the table and calls the specified callback for each of
 
 `typedef int (*enumFunc)(void *key, int count, int *value, void *user);`
 
+
+##tuning
+
+
+#### growth (resize)
+`struct dictionary` has tuning fields:
+
+`growth_threshold`: when to resize, for example `0.5` means "if number of inserted keys is half of the table length then resize". Default: `2.0`;
+	
+My experiments on English dictionary shows balanced performance/memory savings with 1.0 to 2.0.
+
+`growth_factor`: grow the size of hash table by N. Suggested number is between 2 (conserve memory) and 10 (faster insertions).
+
+The key is a combination of a pointer to bytes and a count of bytes.
+
+####value type
+
+The value type is defined as `int` in the header file, you can redefine it to the required type, which could be `char` or `void*` or anything you need.
+
+```c
+#define HASHDICT_VALUE_TYPE int
+```
 
 
