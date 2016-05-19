@@ -21,8 +21,7 @@ Hash slot duplicates are stored as linked list `node = node->next`.
 
 `growth_threshold`: when to resize, for example `0.5` means "if number of inserted keys is half of the table length then resize". Default: `2.0`;
 	
-	My experiments on english dictionary shows balanced
-	performance/memory savings with 1.0 to 2.0.
+My experiments on english dictionary shows balanced performance/memory savings with 1.0 to 2.0.
 
 `growth_factor`: grow the size of hash table by N. Suggested number is between 2 (conserve memory) and 10 (faster insertions).
 
