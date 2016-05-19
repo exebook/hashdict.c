@@ -16,7 +16,10 @@ The hash function used is my adaptation of [Meiyan][cmp2]/7zCRC, it is [better t
 
 Hash slot duplicates are stored as linked list `node = node->next`.
 
+##tuning
 
+
+#### growth (resize)
 `struct dictionary` has tuning fields:
 
 `growth_threshold`: when to resize, for example `0.5` means "if number of inserted keys is half of the table length then resize". Default: `2.0`;
@@ -26,6 +29,8 @@ My experiments on english dictionary shows balanced performance/memory savings w
 `growth_factor`: grow the size of hash table by N. Suggested number is between 2 (conserve memory) and 10 (faster insertions).
 
 The key is a combination of a pointer to bytes and a count of bytes.
+
+####value type
 
 The value type is defined as `int` in the header file, you can redefine it to the required type, which could be `char` or `void*` or anything you need.
 
