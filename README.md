@@ -7,7 +7,7 @@ This is in fact a port of my [hashdic][cppversion] previously written in C++ for
 [cppversion]: https://github.com/exebook/hashdic
 [jslike]: https://github.com/exebook/jslike
 
-For some reason it is more than twice as fast on my benchmarks as the hash table used in [Redis][redisdictc]. But unlike Redis version of a hash table there is no incremental resize.
+For some reason it is more than twice as fast on my benchmarks as the [hash table][redisdictc] used in Redis. But unlike Redis version of a hash table there is no incremental resize.
 
 The hash function used is my adaptation of [Meiyan][cmp2]/7zCRC, it is [better than MurMur3][cmp1].
 
