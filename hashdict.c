@@ -139,3 +139,4 @@ void dic_forEach(struct dictionary* dic, enumFunc f, void *user) {
 		}
 	}
 }
+#undef hash_func

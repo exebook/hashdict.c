@@ -7,11 +7,12 @@
 typedef int (*enumFunc)(void *key, int count, int *value, void *user);
 
 #define HASHDICT_VALUE_TYPE int
+#define KEY_LENGTH_TYPE uint8_t
 
 struct keynode {
-	char *key;
-	short len;
 	struct keynode *next;
+	char *key;
+	KEY_LENGTH_TYPE len;
 	HASHDICT_VALUE_TYPE value;
 };
 		
