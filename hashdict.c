@@ -1,28 +1,20 @@
 #include "hashdict.h"
+#define hash_func meiyan
 
-#define hash_func hash_mur_mur
-
-uint32_t hash_mur_mur(const char* key, int count) {
-	#define muR(x, r) (((x) << r) | ((x) >> (32 - r)))
-	int n = count >> 2;
-	uint32_t k, seed = 0x8e96a8f2, mur = 0x8e96a8f2, c1 = 0xcc9e2d51, c2 = 0x1b873593,
-	*b = (uint32_t*) (key + n * 4);
-	for(int i = -n; i != 0; i++) {
-		k = (muR(b[i] * c1, 15) * c2);
-		mur = muR(mur^k, 13)*5+0xe6546b64;
+static inline uint32_t meiyan(const char *key, int count) {
+	typedef uint32_t* P;
+	uint32_t h = 0x811c9dc5;
+	while (count >= 8) {
+		h = (h ^ ((((*(P)key) << 5) | ((*(P)key) >> 27)) ^ *(P)(key + 4))) * 0xad3e7;
+		count -= 8;
+		key += 8;
 	}
-	uint8_t * tail = (uint8_t*)(key + (n<<2));
-	k = 0;
-	switch(count & 3) {
-		case 3: k ^= tail[2] << 16;
-		case 2: k ^= tail[1] << 8;
-		case 1: k ^= tail[0];
-		k = mur ^ muR(k*c1,15)*c2;
-	}
-	mur ^= count;
-	mur ^= (mur ^ mur >> 16) * 0x85ebca6b >> 13;
-	return mur ^ (mur * 0xc2b2ae35 >> 16);
-	#undef muR
+	#define tmp h = (h ^ *(uint16_t*)key) * 0xad3e7; key += 2;
+	if (count & 4) { tmp tmp }
+	if (count & 2) { tmp }
+	if (count & 1) { h = (h ^ *key) * 0xad3e7; }
+	#undef tmp
+	return h ^ (h >> 16);
 }
 
 struct keynode *keynode_new(char*k, int l) {
@@ -41,17 +33,14 @@ void keynode_delete(struct keynode *node) {
 	free(node);
 }
 
-int node_cmp(struct keynode *node, char*k, int l) {
-	if (node->len != l) return 0;
-	return memcmp(node->key, k, l) == 0;
-}
-
 struct dictionary* dic_new(int initial_size) {
-	struct dictionary* dic = malloc(sizeof(struct dictionary*));
+	struct dictionary* dic = malloc(sizeof(struct dictionary));
 	if (initial_size == 0) initial_size = 1024;
 	dic->length = initial_size;
 	dic->count = 0;
 	dic->table = calloc(sizeof(struct keynode*), initial_size);
+	dic->growth_treshold = 2.0;
+	dic->growth_factor = 10;
 	return dic;
 }
 
@@ -99,8 +88,8 @@ int dic_add(struct dictionary* dic, void *key, int keyn) {
 	int n = hash_func((const char*)key, keyn) % dic->length;
 	if (dic->table[n] == 0) {
 		double f = (double)dic->count / (double)dic->length;
-		if (f > HASHDICT_GROWTH_THRESHOLD) {
-			dic_resize(dic, dic->length * HASHDICT_GROWTH_FACTOR);
+		if (f > dic->growth_treshold) {
+			dic_resize(dic, dic->length * dic->growth_factor);
 			return dic_add(dic, key, keyn);
 		}
 		dic->table[n] = keynode_new((char*)key, keyn);
@@ -110,7 +99,7 @@ int dic_add(struct dictionary* dic, void *key, int keyn) {
 	}
 	struct keynode *k = dic->table[n];
 	while (k) {
-		if (node_cmp(k, (char*)key, keyn)) {
+		if (k->len == keyn && memcmp(k->key, key, keyn) == 0) {
 			dic->result = &k->value;
 			return 1;
 		}
@@ -126,10 +115,11 @@ int dic_add(struct dictionary* dic, void *key, int keyn) {
 
 int dic_find(struct dictionary* dic, void *key, int keyn) {
 	int n = hash_func((const char*)key, keyn) % dic->length;
-	if (dic->table[n] == 0) return 0;
+	__builtin_prefetch(dic->table[n]);
 	struct keynode *k = dic->table[n];
+	if (!k) return 0;
 	while (k) {
-		if (node_cmp(k, (char*)key, keyn)) {
+		if (k->len == keyn && !memcmp(k->key, key, keyn)) {
 			dic->result = &k->value;
 			return 1;
 		}

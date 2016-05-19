@@ -1,6 +1,6 @@
 # hashdict.c
 
-This is my REALLY FAST implementation of a hash table in C, in 150 lines of code.
+This is my REALLY FAST implementation of a hash table in C, in under 200 lines of code.
 
 This is in fact a port of my [hashdic][cppversion] previously written in C++ for [jslike][jslike] project (which is a `var` class making programming in C++ as easy as in JavaScript).
 
@@ -9,15 +9,27 @@ This is in fact a port of my [hashdic][cppversion] previously written in C++ for
 
 For some reason it is more than twice as fast on my benchmarks as the hash table used in Redis.
 
-The hash function used is my adaptation of MurMur.
+The hash function used is my adaptation of [Meiyan][cmp2]/7zCRC, it is [better than MurMur3][cmp1].
 
-Hash slot duplicates are stored as linked list.
+[cmp1]: https://www.strchr.com/hash_functions
+[cmp2]: http://www.sanmayce.com/Fastest_Hash/
 
-There are few defines in the header file that you can edit to tune the table for your case, although the defaults are quite good.
+Hash slot duplicates are stored as linked list `node = node->next`.
+
+
+`struct dictionary` has tuning fields:
+
+`growth_threshold`: when to resize, for example `0.5` means "if number of inserted keys is half of the table length then resize". Default: `2.0`;
+	
+	My experiments on english dictionary shows balanced
+	performance/memory savings with 1.0 to 2.0.
+
+`growth_factor`: grow the size of hash table by N. Suggested number is between 2 (conserve memory) and 10 (faster insertions).
 
 The key is a combination of a pointer to bytes and a count of bytes.
 
-The value type is defined as `int` in the header file, you can redefine it to the required type.
+The value type is defined as `int` in the header file, you can redefine it to the required type, which could be `char` or `void*` or anything you need.
+
 ```c
 #define HASHDICT_VALUE_TYPE int
 ```
@@ -60,21 +72,21 @@ int main() {
 
 ##dic_new()
 
-Creates the hash table.
+Create the hash table.
 
 `struct dictionary* dic_new(int initial_size);`
 
-set `initial_size` to 0 for the initial size of the table, which is 1024 items. Useful when you know how much keys you will store and want to preallocate, in which case use N/2 as the initial_size.
+Set `initial_size` to 0 for the initial size of the table, which is 1024 items. Useful when you know how much keys you will store and want to preallocate, in which case use N/growth_treshold as the initial_size. `growth_threshold` is 2.0 by default.
 
 ##dic_delete()
 
-Deletes the hash table and frees all occupied memory.
+Delete the hash table and frees all occupied memory.
 
 `void dic_delete(struct dictionary* dic);`
 
 ##dic_add()
 
-Adds a new key to the hash table.
+Add a new key to the hash table.
 
 Unlike most of implementations, you do NOT supply the value as the argument for the `add()` function. Instead after `dic_add()` returns, set the value like this: `*mydic->result = <VALUE>`.
 
