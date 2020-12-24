@@ -115,7 +115,13 @@ int dic_add(struct dictionary* dic, void *key, int keyn) {
 
 int dic_find(struct dictionary* dic, void *key, int keyn) {
 	int n = hash_func((const char*)key, keyn) % dic->length;
-	__builtin_prefetch(dic->table[n]);
+    #if defined(__MINGW32__) || defined(__MINGW64__)
+	__builtin_prefetch(gc->table[n]);
+    #endif
+    
+    #if defined(_WIN32) || defined(_WIN64)
+    _mm_prefetch((char*)gc->table[n], _MM_HINT_T0);
+    #endif
 	struct keynode *k = dic->table[n];
 	if (!k) return 0;
 	while (k) {

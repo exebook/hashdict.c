@@ -3,6 +3,7 @@
 #include <stdlib.h> /* malloc/calloc */
 #include <stdint.h> /* uint32_t */
 #include <string.h> /* memcpy/memcmp */
+#include <xmmintrin.h>
 
 typedef int (*enumFunc)(void *key, int count, int *value, void *user);
 
