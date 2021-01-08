@@ -17,7 +17,7 @@ The hash function used is my adaptation of [Meiyan][cmp2]/7zCRC, it is [better t
 
 Hash slot duplicates are stored as linked list `node = node->next`.
 
-##example
+## example
 
 ```c
 #include <sys/time.h>
@@ -52,7 +52,7 @@ int main() {
 	return 0;
 }
 ```
-##dic_add()
+## dic_add()
 
 Add a new key to the hash table.
 
@@ -62,13 +62,13 @@ Unlike most of implementations, you do NOT supply the value as the argument for 
 
 Returns `true`(`1`) if the key was already in the table, otherwise `false`(`0`). In both cases you can change the associated value by referencing the `*dic->value` field after `dic_add()` returns.
 
-##dic_find()
+## dic_find()
 
 Lookup the key in the hash table. Return `true`(`1`) if found, the you can get the value like this: `myvalue = *dic->value`. 
 
 `int dic_find(struct dictionary* dic, void *key, int keyn);`
 
-##dic_new()
+## dic_new()
 
 Create the hash table.
 
@@ -76,13 +76,13 @@ Create the hash table.
 
 Set `initial_size` to 0 for the initial size of the table, which is 1024 items. Useful when you know how much keys you will store and want to preallocate, in which case use N/growth_treshold as the initial_size. `growth_threshold` is 2.0 by default.
 
-##dic_delete()
+## dic_delete()
 
 Delete the hash table and frees all occupied memory.
 
 `void dic_delete(struct dictionary* dic);`
 
-##forEach()
+## forEach()
 
 Iterates over all keys in the table and calls the specified callback for each of them.
 
@@ -91,7 +91,7 @@ Iterates over all keys in the table and calls the specified callback for each of
 `typedef int (*enumFunc)(void *key, int count, int *value, void *user);`
 
 
-##tuning
+## tuning
 
 
 #### growth (resize)
@@ -105,7 +105,7 @@ My experiments on English dictionary shows balanced performance/memory savings w
 
 The key is a combination of a pointer to bytes and a count of bytes.
 
-####value type
+#### value type
 
 The value type is defined as `int` in the header file, you can redefine it to the required type, which could be `char` or `void*` or anything you need.
 
